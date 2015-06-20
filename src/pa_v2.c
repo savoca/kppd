@@ -20,7 +20,6 @@
 
 int write_pa_v2(int hue, int sat, int val, int cont)
 {
-	int fd;
 	struct msmfb_mdp_pp pp;
 
 	memset(&pp, 0, sizeof(struct msmfb_mdp_pp));

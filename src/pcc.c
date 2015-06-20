@@ -20,7 +20,6 @@
 
 int write_pcc(int red, int green, int blue)
 {
-	int fd;
 	struct msmfb_mdp_pp pp;
 
 	memset(&pp, 0, sizeof(struct msmfb_mdp_pp));

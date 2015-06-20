@@ -112,7 +112,6 @@ static uint32_t igc_rgb[IGC_LUT_ENTRIES] = {
 
 int write_igc(int invert)
 {
-	int fd;
 	struct msmfb_mdp_pp pp;
 
 	memset(&pp, 0, sizeof(struct msmfb_mdp_pp));
