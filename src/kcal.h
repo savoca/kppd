@@ -18,6 +18,7 @@
 #define MAX_KCAL_DATA 4
 #define TARGET_FB "/dev/graphics/fb0"
 #define IGC_LUT_ENTRIES 256
+#define MDP_LUT_SIZE 256
 
 uint32_t block;
 uint32_t ops_enable;
@@ -28,3 +29,4 @@ int write_pcc(int red, int green, int blue);
 int write_pa(int hue, int sat, int val, int cont);
 int write_pa_v2(int hue, int sat, int val, int cont);
 int write_igc(int invert);
+int write_lut(int red, int green, int blue);

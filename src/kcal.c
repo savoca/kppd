@@ -24,12 +24,13 @@ int usage(char *self, bool extended)
 	printf("%s: <target> <data...>\n", self);
 
 	if (extended == true) {
-		printf("target: pcc pa pa_v2 igc\n");
+		printf("target: pcc pa pa_v2 igc lut\n");
 		printf("\n");
 		printf("pcc: red, green, blue\n");
 		printf("pa: hue, saturation, value, contrast\n");
 		printf("pa_v2: hue, saturation, value, contrast\n");
 		printf("igc: invert\n");
+		printf("lut: red, green, blue\n");
 		printf("\n");
 		printf("Example: %s pcc 256 232 246\n", self);
 		return 0;
@@ -109,6 +110,16 @@ int main(int argc, char **argv)
 			return usage(argv[0], false);
 
 		write_igc(data[0]);
+	} else if (!strcmp(argv[1], "LUT") || !strcmp(argv[1], "lut")) {
+		if (argc != 5)
+			return usage(argv[0], false);
+
+		for (i = 0; i < 3; i++) {
+			if (sscanf(argv[i + 2], "%d", &data[i]) != 1)
+				return usage(argv[0], false);
+		}
+
+		write_lut(data[0], data[1], data[2]);
 	} else
 		return usage(argv[0], false);
 
