@@ -24,6 +24,9 @@ int usage(char *self, bool extended)
 	printf("%s: <target> <data...>\n", self);
 
 	if (extended == true) {
+		printf("KCAL: Configure post-processing settings of Qualcomm MDSS\n");
+		printf("Copyright (c) 2015 savoca <savoca@codefi.re>\n");
+		printf("\n");
 		printf("target: pcc pa pa_v2 igc lut\n");
 		printf("\n");
 		printf("pcc: red, green, blue\n");
