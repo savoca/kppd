@@ -15,10 +15,11 @@
 
 int usage(char *self, bool extended)
 {
-	printf("%s: <config>\n", self);
+	printf("Usage: %s <config>\n", self);
 
 	if (extended == true) {
-		printf("KPPD: Configure post-processing settings of Qualcomm MDSS\n");
+		printf("\n");
+		printf("kppd - Configure post-processing settings of Qualcomm MDSS\n");
 		printf("Copyright (c) 2015 savoca <savoca@codefi.re>\n");
 		return 0;
 	}
@@ -151,7 +152,7 @@ int main(int argc, char **argv)
 		return usage(argv[0], true);
 
 	if (argc != 2)
-		return usage(argv[1], false);
+		return usage(argv[0], false);
 
 	/* We will cd into root so grab the entire path of the config. */
 	if (argv[1][0] != '/') {
