@@ -11,12 +11,6 @@
  * GNU General Public License for more details.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <stdbool.h>
-
 #include "kcal.h"
 
 int usage(char *self, bool extended)

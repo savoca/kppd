@@ -11,12 +11,7 @@
  * GNU General Public License for more details.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
 #include "kcal.h"
-#include "msm_mdp.h"
 
 int write_pa_v2(int hue, int sat, int val, int cont)
 {

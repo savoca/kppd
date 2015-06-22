@@ -11,12 +11,7 @@
  * GNU General Public License for more details.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
 #include "kcal.h"
-#include "msm_mdp.h"
 
 int write_pcc(int red, int green, int blue)
 {

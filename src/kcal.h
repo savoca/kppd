@@ -11,7 +11,14 @@
  * GNU General Public License for more details.
  */
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <fcntl.h>
+#include <linux/fb.h>
+#include <sys/ioctl.h>
 
 #include "msm_mdp.h"
 

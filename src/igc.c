@@ -11,12 +11,7 @@
  * GNU General Public License for more details.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
 #include "kcal.h"
-#include "msm_mdp.h"
 
 static uint32_t igc_inverted[IGC_LUT_ENTRIES] = {
 	267390960, 266342368, 265293776, 264245184,
