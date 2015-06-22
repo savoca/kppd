@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <linux/fb.h>
 #include <sys/ioctl.h>
@@ -23,6 +24,7 @@
 #include "msm_mdp.h"
 
 #define MAX_KCAL_DATA 4
+#define MAX_CONFIG_PATH 1024
 #define TARGET_FB "/dev/graphics/fb0"
 #define IGC_LUT_ENTRIES 256
 #define MDP_LUT_SIZE 256
@@ -37,3 +39,28 @@ int write_pa(int hue, int sat, int val, int cont);
 int write_pa_v2(int hue, int sat, int val, int cont);
 int write_igc(int invert);
 int write_lut(int red, int green, int blue);
+
+struct rgb_data {
+	int red;
+	int green;
+	int blue;
+};
+
+struct pa_data {
+	int hue;
+	int sat;
+	int val;
+	int cont;
+};
+
+struct igc_data {
+	int invert;
+};
+
+struct kcal_data {
+	int mdp_ver;
+	int pa_ver;
+	struct rgb_data rgb;
+	struct pa_data pa;
+	struct igc_data igc;
+};
