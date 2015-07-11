@@ -59,10 +59,7 @@ void init_daemon(void)
 
 	umask(0);
 
-	if (setsid() < 0)
-		exit(EXIT_FAILURE);
-
-	if (chdir("/") < 0)
+	if (setsid() < 0 || chdir("/") < 0)
 		exit(EXIT_FAILURE);
 
 	for (i = sysconf(_SC_OPEN_MAX); i > 0; i--)
@@ -163,6 +160,11 @@ int main(int argc, char **argv)
 
 	if (access(config, R_OK) != 0) {
 		printf("Could not read config!\n");
+		return 1;
+	}
+
+	if (access(TARGET_FB, W_OK) != 0) {
+		printf("Could not open %s!\n", TARGET_FB);
 		return 1;
 	}
 
