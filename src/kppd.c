@@ -134,12 +134,10 @@ void apply_kcal(struct kcal_data *kcal)
 
 int main(int argc, char **argv)
 {
-	int i;
 	char config[MAX_CONFIG_PATH];
 	char cwd[MAX_CONFIG_PATH];
 	struct kcal_data kcal;
 	struct kcal_data kcal_cfg;
-	FILE *config_fd;
 
 	block = MDP_LOGICAL_BLOCK_DISP_0;
 	ops_enable = MDP_PP_OPS_WRITE | MDP_PP_OPS_ENABLE;
