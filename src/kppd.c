@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 			apply_kcal(&kcal);
 		}
 
-		sleep(10);
+		sleep(1);
 	}
 
 	exit(EXIT_SUCCESS);
