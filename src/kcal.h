@@ -24,14 +24,9 @@
 #include "msm_mdp.h"
 
 #define MAX_KCAL_DATA 4
-#define MAX_CONFIG_PATH 1024
 #define TARGET_FB "/dev/graphics/fb0"
 #define IGC_LUT_ENTRIES 256
 #define MDP_LUT_SIZE 256
-
-uint32_t block;
-uint32_t ops_enable;
-uint32_t ops_disable;
 
 int write_pp(struct msmfb_mdp_pp *pp);
 int write_pcc(int red, int green, int blue);

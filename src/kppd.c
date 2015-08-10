@@ -11,50 +11,33 @@
  * GNU General Public License for more details.
  */
 
+#include <sys/inotify.h>
+#include <limits.h>
 #include "kcal.h"
 
-int usage(char *self, bool extended)
+#define KPPD_VER "1.1.0"
+#define I_BUF_LEN (sizeof(struct inotify_event) + NAME_MAX + 1)
+
+static int usage(char *self)
 {
 	printf("Usage: %s <config>\n", self);
-
-	if (extended == true) {
-		printf("\n");
-		printf("kppd - Configure post-processing settings of Qualcomm MDSS\n");
-		printf("Copyright (c) 2015 savoca <savoca@codefi.re>\n");
-		return 0;
-	}
-
 	return 1;
 }
 
-int write_pp(struct msmfb_mdp_pp *pp)
+static int version(void)
 {
-	int ret = 0;
-	int fd;
-
-	fd = open(TARGET_FB, O_RDWR);
-	if (fd < 0) {
-		printf("Failed to open %s\n", TARGET_FB);
-		return 1;
-	}
-
-	ret = ioctl(fd, MSMFB_MDP_PP, pp);
-
-	close(fd);
-
-	if (ret != 0)
-		printf("Failed to apply post-processing: %d\n", ret);
-
-	return ret;
+	printf("kppd version %s\n", KPPD_VER);
+	printf("Copyright (c) 2015 savoca <savoca@codefi.re>\n");
+	return 0;
 }
 
-void init_daemon(void)
+static void init_daemon(void)
 {
 	int i;
 	pid_t pid;
 
 	pid = fork();
-	if (pid != 0)
+	if (pid)
 		exit(pid < 0 ? EXIT_FAILURE : EXIT_SUCCESS);
 
 	umask(0);
@@ -66,33 +49,7 @@ void init_daemon(void)
 		close(i);
 }
 
-void load_defaults(struct kcal_data *kcal)
-{
-	kcal->mdp_ver = 5;
-	kcal->pa_ver = 2;
-	kcal->rgb.red = 256;
-	kcal->rgb.green = 256;
-	kcal->rgb.blue = 256;
-	kcal->pa.hue = 0;
-	kcal->pa.sat = 255;
-	kcal->pa.val = 255;
-	kcal->pa.cont = 255;
-	kcal->igc.invert = 0;
-}
-
-int detect_change(struct kcal_data *kd1, struct kcal_data *kd2)
-{
-	if (kd1->mdp_ver != kd2->mdp_ver || kd1->pa_ver != kd2->pa_ver ||
-		kd1->rgb.red != kd2->rgb.red || kd1->rgb.green != kd2->rgb.green ||
-		kd1->rgb.blue != kd2->rgb.blue || kd1->pa.hue != kd2->pa.hue ||
-		kd1->pa.sat != kd2->pa.sat || kd1->pa.val != kd2->pa.val ||
-		kd1->pa.cont != kd2->pa.cont || kd1->igc.invert != kd2->igc.invert)
-		return 1;
-
-	return 0;
-}
-
-void read_config(char *config, struct kcal_data *kcal_cfg)
+static void read_config(char *config, struct kcal_data *kcal_cfg)
 {
 	FILE *config_fd;
 
@@ -101,85 +58,104 @@ void read_config(char *config, struct kcal_data *kcal_cfg)
 		return;
 
 	fscanf(config_fd, "[mdp_version]=%d\n", &kcal_cfg->mdp_ver);
-	fscanf(config_fd, "[pa_version]=%d\n", &kcal_cfg->pa_ver);
-	fscanf(config_fd, "[red]=%d\n", &kcal_cfg->rgb.red);
-	fscanf(config_fd, "[green]=%d\n", &kcal_cfg->rgb.green);
-	fscanf(config_fd, "[blue]=%d\n", &kcal_cfg->rgb.blue);
-	fscanf(config_fd, "[hue]=%d\n", &kcal_cfg->pa.hue);
-	fscanf(config_fd, "[saturation]=%d\n", &kcal_cfg->pa.sat);
-	fscanf(config_fd, "[value]=%d\n", &kcal_cfg->pa.val);
-	fscanf(config_fd, "[contrast]=%d\n", &kcal_cfg->pa.cont);
-	fscanf(config_fd, "[invert]=%d\n", &kcal_cfg->igc.invert);
+    fscanf(config_fd, "[pa_version]=%d\n", &kcal_cfg->pa_ver);
+    fscanf(config_fd, "[red]=%d\n", &kcal_cfg->rgb.red);
+    fscanf(config_fd, "[green]=%d\n", &kcal_cfg->rgb.green);
+    fscanf(config_fd, "[blue]=%d\n", &kcal_cfg->rgb.blue);
+    fscanf(config_fd, "[hue]=%d\n", &kcal_cfg->pa.hue);
+    fscanf(config_fd, "[saturation]=%d\n", &kcal_cfg->pa.sat);
+    fscanf(config_fd, "[value]=%d\n", &kcal_cfg->pa.val);
+    fscanf(config_fd, "[contrast]=%d\n", &kcal_cfg->pa.cont);
+    fscanf(config_fd, "[invert]=%d\n", &kcal_cfg->igc.invert);
 
-	fclose(config_fd);
+    fclose(config_fd);
 }
 
-void apply_kcal(struct kcal_data *kcal)
+static void apply_kcal(struct kcal_data kcal)
 {
-	if (kcal->mdp_ver == 5) {
-		write_pcc(kcal->rgb.red, kcal->rgb.green, kcal->rgb.blue);
+	if (kcal.mdp_ver == 5) {
+		write_pcc(kcal.rgb.red, kcal.rgb.green, kcal.rgb.blue);
 
-		if (kcal->pa_ver == 1) {
-			write_pa(kcal->pa.hue, kcal->pa.sat,
-				kcal->pa.val, kcal->pa.cont);
-		} else if (kcal->pa_ver == 2) {
-			write_pa_v2(kcal->pa.hue, kcal->pa.sat,
-				kcal->pa.val, kcal->pa.cont);
-		}
+		if (kcal.pa_ver == 1)
+			write_pa(kcal.pa.hue, kcal.pa.sat, kcal.pa.val, kcal.pa.cont);
+		else if (kcal.pa_ver == 2)
+			write_pa_v2(kcal.pa.hue, kcal.pa.sat, kcal.pa.val, kcal.pa.cont);
 
-		write_igc(kcal->igc.invert);
-	} else if (kcal->mdp_ver == 3)
-		write_lut(kcal->rgb.red, kcal->rgb.green, kcal->rgb.blue);
+		write_igc(kcal.igc.invert);
+	} else if (kcal.mdp_ver == 3)
+		write_lut(kcal.rgb.red, kcal.rgb.green, kcal.rgb.blue);
 }
 
 int main(int argc, char **argv)
 {
-	char config[MAX_CONFIG_PATH];
-	char cwd[MAX_CONFIG_PATH];
+	char *config;
 	struct kcal_data kcal;
-	struct kcal_data kcal_cfg;
-
-	block = MDP_LOGICAL_BLOCK_DISP_0;
-	ops_enable = MDP_PP_OPS_WRITE | MDP_PP_OPS_ENABLE;
-	ops_disable = MDP_PP_OPS_WRITE | MDP_PP_OPS_DISABLE;
-
-	if (argc == 1)
-		return usage(argv[0], true);
+	struct inotify_event *event;
+	int i_fd, i_wd, i_len;
+	char i_buf[I_BUF_LEN];
+	char i_path[PATH_MAX];
+	char *p;
 
 	if (argc != 2)
-		return usage(argv[0], false);
+		return usage(argv[0]);
 
-	/* We will cd into root so grab the entire path of the config. */
-	if (argv[1][0] != '/') {
-		getcwd(cwd, sizeof(cwd));
-		snprintf(config, sizeof(config), "%s/%s", cwd, argv[1]);
-	} else
-		snprintf(config, sizeof(config), "%s", argv[1]);
+	if (!strcmp(argv[1], "--version") || !strcmp(argv[1], "-v"))
+		return version();
 
-	if (access(config, R_OK) != 0) {
-		printf("Could not read config!\n");
+	config = realpath(argv[1], NULL);
+	if (access(config, R_OK)) {
+		printf("Could not read config %s\n", config);
 		return 1;
 	}
 
-	if (access(TARGET_FB, W_OK) != 0) {
-		printf("Could not open %s!\n", TARGET_FB);
+	if (access(TARGET_FB, W_OK)) {
+		printf("Could not open %s\n", TARGET_FB);
 		return 1;
 	}
 
 	init_daemon();
 
-	load_defaults(&kcal);
-
-	for (;;) {
-		read_config(config, &kcal_cfg);
-
-		if (detect_change(&kcal, &kcal_cfg)) {
-			kcal = kcal_cfg;
-			apply_kcal(&kcal);
-		}
-
-		sleep(1);
+	i_fd = inotify_init();
+	if (i_fd < 0) {
+		printf("Failed to initialize inotify\n");
+		return 1;
 	}
 
-	exit(EXIT_SUCCESS);
+	i_wd = inotify_add_watch(i_fd, config,
+		IN_MODIFY | IN_DELETE_SELF | IN_MOVE_SELF);
+	if (i_wd < 0) {
+		printf("Failed to add watch for %s\n", config);
+		return 1;
+	}
+
+	read_config(config, &kcal);
+	apply_kcal(kcal);
+
+	for (;;) {
+		i_len = read(i_fd, i_buf, I_BUF_LEN);
+		if (i_len < 1) {
+			printf("Failed to read from inotify fd.\n");
+			return 1;
+		}
+
+		for (p = i_buf; p < i_buf + i_len;) {
+			event = (struct inotify_event *)p;
+
+			if (event->mask & IN_MODIFY) {
+				read_config(config, &kcal);
+				apply_kcal(kcal);
+			}
+
+			if (event->mask & IN_DELETE_SELF || event->mask & IN_MOVE_SELF)
+				goto exit;
+
+			p += sizeof(struct inotify_event) + event->len;
+		}
+	}
+
+exit:
+	inotify_rm_watch(i_fd, i_wd);
+	close(i_fd);
+
+	return 0;
 }

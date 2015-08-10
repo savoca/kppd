@@ -37,35 +37,10 @@ int usage(char *self, bool extended)
 	return 1;
 }
 
-int write_pp(struct msmfb_mdp_pp *pp)
-{
-	int ret = 0;
-	int fd;
-
-	fd = open(TARGET_FB, O_RDWR);
-	if (fd < 0) {
-		printf("Failed to open %s\n", TARGET_FB);
-		return 1;
-	}
-
-	ret = ioctl(fd, MSMFB_MDP_PP, pp);
-
-	close(fd);
-
-	if (ret != 0)
-		printf("Failed to apply post-processing: %d\n", ret);
-
-	return ret;
-}
-
 int main(int argc, char **argv)
 {
 	int i;
 	int data[MAX_KCAL_DATA];
-
-	block = MDP_LOGICAL_BLOCK_DISP_0;
-	ops_enable = MDP_PP_OPS_WRITE | MDP_PP_OPS_ENABLE;
-	ops_disable = MDP_PP_OPS_WRITE | MDP_PP_OPS_DISABLE;
 
 	if (argc == 1)
 		return usage(argv[0], true);
