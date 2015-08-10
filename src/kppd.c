@@ -58,17 +58,17 @@ static void read_config(char *config, struct kcal_data *kcal_cfg)
 		return;
 
 	fscanf(config_fd, "[mdp_version]=%d\n", &kcal_cfg->mdp_ver);
-    fscanf(config_fd, "[pa_version]=%d\n", &kcal_cfg->pa_ver);
-    fscanf(config_fd, "[red]=%d\n", &kcal_cfg->rgb.red);
-    fscanf(config_fd, "[green]=%d\n", &kcal_cfg->rgb.green);
-    fscanf(config_fd, "[blue]=%d\n", &kcal_cfg->rgb.blue);
-    fscanf(config_fd, "[hue]=%d\n", &kcal_cfg->pa.hue);
-    fscanf(config_fd, "[saturation]=%d\n", &kcal_cfg->pa.sat);
-    fscanf(config_fd, "[value]=%d\n", &kcal_cfg->pa.val);
-    fscanf(config_fd, "[contrast]=%d\n", &kcal_cfg->pa.cont);
-    fscanf(config_fd, "[invert]=%d\n", &kcal_cfg->igc.invert);
+	fscanf(config_fd, "[pa_version]=%d\n", &kcal_cfg->pa_ver);
+	fscanf(config_fd, "[red]=%d\n", &kcal_cfg->rgb.red);
+	fscanf(config_fd, "[green]=%d\n", &kcal_cfg->rgb.green);
+	fscanf(config_fd, "[blue]=%d\n", &kcal_cfg->rgb.blue);
+	fscanf(config_fd, "[hue]=%d\n", &kcal_cfg->pa.hue);
+	fscanf(config_fd, "[saturation]=%d\n", &kcal_cfg->pa.sat);
+	fscanf(config_fd, "[value]=%d\n", &kcal_cfg->pa.val);
+	fscanf(config_fd, "[contrast]=%d\n", &kcal_cfg->pa.cont);
+	fscanf(config_fd, "[invert]=%d\n", &kcal_cfg->igc.invert);
 
-    fclose(config_fd);
+	fclose(config_fd);
 }
 
 static void apply_kcal(struct kcal_data kcal)
