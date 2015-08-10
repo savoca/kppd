@@ -23,7 +23,6 @@
 
 #include "msm_mdp.h"
 
-#define MAX_KCAL_DATA 4
 #define TARGET_FB "/dev/graphics/fb0"
 #define IGC_LUT_ENTRIES 256
 #define MDP_LUT_SIZE 256
