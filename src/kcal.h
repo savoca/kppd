@@ -28,7 +28,7 @@
 #define MDP_LUT_SIZE 256
 
 int write_pp(struct msmfb_mdp_pp *pp);
-int write_pcc(int red, int green, int blue);
+int write_pcc(int red, int green, int blue, int invert);
 int write_pa(int hue, int sat, int val, int cont);
 int write_pa_v2(int hue, int sat, int val, int cont);
 int write_igc(int invert);
@@ -38,6 +38,7 @@ struct rgb_data {
 	int red;
 	int green;
 	int blue;
+	int invert;
 };
 
 struct pa_data {
@@ -47,14 +48,9 @@ struct pa_data {
 	int cont;
 };
 
-struct igc_data {
-	int invert;
-};
-
 struct kcal_data {
 	int mdp_ver;
 	int pa_ver;
 	struct rgb_data rgb;
 	struct pa_data pa;
-	struct igc_data igc;
 };

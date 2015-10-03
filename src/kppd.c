@@ -66,7 +66,7 @@ static void read_config(char *config, struct kcal_data *kcal_cfg)
 	fscanf(config_fd, "[saturation]=%d\n", &kcal_cfg->pa.sat);
 	fscanf(config_fd, "[value]=%d\n", &kcal_cfg->pa.val);
 	fscanf(config_fd, "[contrast]=%d\n", &kcal_cfg->pa.cont);
-	fscanf(config_fd, "[invert]=%d\n", &kcal_cfg->igc.invert);
+	fscanf(config_fd, "[invert]=%d\n", &kcal_cfg->rgb.invert);
 
 	fclose(config_fd);
 }
@@ -74,14 +74,13 @@ static void read_config(char *config, struct kcal_data *kcal_cfg)
 static void apply_kcal(struct kcal_data kcal)
 {
 	if (kcal.mdp_ver == 5) {
-		write_pcc(kcal.rgb.red, kcal.rgb.green, kcal.rgb.blue);
+		write_pcc(kcal.rgb.red, kcal.rgb.green, kcal.rgb.blue,
+			kcal.rgb.invert);
 
 		if (kcal.pa_ver == 1)
 			write_pa(kcal.pa.hue, kcal.pa.sat, kcal.pa.val, kcal.pa.cont);
 		else if (kcal.pa_ver == 2)
 			write_pa_v2(kcal.pa.hue, kcal.pa.sat, kcal.pa.val, kcal.pa.cont);
-
-		write_igc(kcal.igc.invert);
 	} else if (kcal.mdp_ver == 3)
 		write_lut(kcal.rgb.red, kcal.rgb.green, kcal.rgb.blue);
 }
